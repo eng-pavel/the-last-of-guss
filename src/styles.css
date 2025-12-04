@@ -67,3 +67,33 @@ body {
   display: block;
   margin-bottom: 4px;
 }
+
+.rounds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rounds-list {
+  margin-top: 16px;
+}
+
+.round-card {
+  border: 1px dashed #666;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.round-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.round-meta {
+  margin-top: 8px;
+}
+
+.round-status {
+  margin-top: 12px;
+  font-weight: 500;
+}
