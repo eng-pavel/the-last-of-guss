@@ -1,0 +1,70 @@
+name: Build & Deploy The Last of Guss
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: engineerpavel/the-last-of-guss-frontend
+      CONTAINER_NAME: guss-frontend
+      APP_PORT: 3010
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.1
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            IMAGE_NAME=${{ env.IMAGE_NAME }}
+            CONTAINER_NAME=${{ env.CONTAINER_NAME }}
+            APP_PORT=${{ env.APP_PORT }}
+
+            docker pull "$IMAGE_NAME:latest"
+
+            docker stop "$CONTAINER_NAME" || true
+            docker rm "$CONTAINER_NAME" || true
+
+            docker run -d \
+              --name "$CONTAINER_NAME" \
+              --restart always \
+              -p 127.0.0.1:$APP_PORT:80 \
+              "$IMAGE_NAME:latest"
