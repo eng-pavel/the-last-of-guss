@@ -14,8 +14,31 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const STORAGE_KEY = 'guss_auth';
+
+function readInitialUser(): AuthUser | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw: string | null = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed: AuthUser = JSON.parse(raw) as AuthUser;
+
+    if (parsed && parsed.token) {
+      // сразу проставляем заголовок для axios
+      setAuthToken(parsed.token);
+      return parsed;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(() => readInitialUser());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setAuthToken(data.token);
       setUser(data);
-      setIsLoading(false);
 
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      setIsLoading(false);
       return true;
     } catch (err) {
       let message = 'Не удалось войти. Попробуйте ещё раз.';
@@ -46,6 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(message);
       setIsLoading(false);
 
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+
       return false;
     }
   }, []);
@@ -54,6 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthToken(null);
     setUser(null);
     setError(null);
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   }, []);
 
   const value: AuthContextValue = {

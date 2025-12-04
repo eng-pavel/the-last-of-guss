@@ -97,3 +97,62 @@ body {
   margin-top: 12px;
   font-weight: 500;
 }
+
+.round-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goose-area {
+  width: 260px;
+  height: 200px;
+  margin: 0 auto 16px;
+  border: 1px dashed #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.05s ease;
+  background-color: #05080f;
+}
+
+.goose-area:hover {
+  background-color: #111827;
+}
+
+.goose-area:active {
+  transform: scale(0.98);
+}
+
+.goose-area-inactive {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.goose-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none; /* клик по контейнеру */
+}
+
+.round-text-block {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.stats-block {
+  margin-top: 16px;
+  border-top: 1px dashed #666;
+  padding-top: 12px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
