@@ -1,0 +1,49 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: #05080f;
+    color: #f5f5f5;
+}
+
+/* общий каркас */
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    padding: 12px 24px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+}
+
+.app-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+}
+
+.page {
+    width: 420px;
+    border: 1px dashed #888;
+    padding: 16px 24px;
+}
+
+.page-header {
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #666;
+    margin-bottom: 16px;
+}
+
+.page-section {
+    margin-top: 16px;
+}
