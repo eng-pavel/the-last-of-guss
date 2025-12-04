@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# 🦆 The Last of Guss
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Браузерная игра, в которой игроки соревнуются, кто больше и быстрее натапает по мутировавшему гусю G-42.  
+Фронтенд на **React + TypeScript + Vite**, с интеграцией с внешним API.
 
-Currently, two official plugins are available:
+Прод: https://guss.engineerpavel.ru  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Автор: [@ng_pablo](https://t.me/ng_pablo)
 
-## React Compiler
+CV: https://cv.engineerpavel.ru
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🎮 Функциональность
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Аутентификация**
+  - Логин по имени и паролю.
+  - Если пользователя нет — создаётся автоматически.
+  - Если пароль не совпадает — показывается ошибка под кнопкой.
+- **Список раундов**
+  - Отображение текущих и запланированных раундов.
+  - ID раунда — ссылка на страницу раунда.
+  - Для админа — кнопка создания раунда, сразу перекидывает на страницу раунда.
+- **Страница раунда**
+  - Отображение состояния: *ещё не начат*, *активен*, *завершён*.
+  - Таймер до начала / до конца раунда.
+  - Мутировавший гусь G-42, по которому можно тапать, если раунд активен.
+  - Личная статистика игрока и топ раунда.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🧱 Технологии
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Frontend**
+  - React + TypeScript
+  - Vite
+  - React Router
+  - Ant Design (UI-компоненты)
+- **Код-стайл**
+  - ESLint 9 (flat config)
+  - Prettier
+- **Инфраструктура**
+  - Docker (Nginx внутри контейнера для раздачи статики)
+  - Nginx на сервере (HTTPS + прокси на API и контейнер)
+  - GitHub Actions (сборка и деплой Docker-образа на сервер)
+
+---
+
+## 🚀 Запуск локально (dev)
+
+### 1. Установить зависимости
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Настроить переменные окружения
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Создай файл `.env.development` в корне проекта:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_BASE_URL=http://v2991160.hosted-by-vdsina.ru/api/v1
 ```
+
+> Это прямое подключение к внешнему бэкенду игры.
+
+### 3. Запуск dev-сервера
+
+```bash
+npm run dev
+```
+
+По умолчанию приложение будет доступно по адресу:
+
+- http://localhost:5173
+
+---
+
+## 🏗 Продакшн-сборка
+
+### 1. Прод-окружение
+
+Файл `.env.production`:
+
+```env
+VITE_API_BASE_URL=/api/v1
+```
+
+В продакшене фронтенд обращается к API по относительному пути (`/api/v1/...`),  
+а Nginx на сервере проксирует эти запросы на внешний бэк.
+
+### 2. Сборка
+
+```bash
+npm run build
+```
+
+Результат (папка `dist/`) разворачивается в Docker-контейнере с Nginx.
+
+---
+
+## 🐳 Docker
+
+Пример команды локальной сборки и запуска:
+
+```bash
+docker build -t the-last-of-guss-frontend .
+docker run --rm -p 4173:80 the-last-of-guss-frontend
+```
+
+После этого приложение будет доступно по адресу:
+
+- http://localhost:4173
+
+В бою образ собирается и деплоится через GitHub Actions в репозиторий Docker Hub,  
+а затем разворачивается на сервере и пробрасывается наружу через Nginx.
+
+---
+
+## 📬 Контакты
+
+Автор: [@engineerpavel](https://t.me/engineerpavel)  
+
+Если хочешь обсудить проект, архитектуру, фронтенд или просто тапнуть гуся — пиши 😉

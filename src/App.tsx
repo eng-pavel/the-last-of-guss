@@ -5,7 +5,7 @@ import { RoundsListPage } from './pages/RoundsListPage';
 import { RoundPage } from './pages/RoundPage';
 import { useAuth } from './context/AuthContext';
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
 
 function App() {
@@ -42,6 +42,17 @@ function App() {
           <Route path="/rounds/:id" element={<RoundPage />} />
         </Routes>
       </Content>
+
+      <Footer className="app-footer">
+        <span>Pavel Pogorelov </span>
+        <a href="https://t.me/ng_pablo" target="_blank" rel="noreferrer">
+          @ng_pablo
+        </a>
+        <span> · </span>
+        <a href="https://cv.engineerpavel.ru" target="_blank" rel="noreferrer">
+          cv.engineerpavel.ru
+        </a>
+      </Footer>
     </Layout>
   );
 }

@@ -47,10 +47,10 @@ body {
 }
 
 .app-content {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  padding: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 24px 64px;
+  flex: 1 0 auto;
 }
 
 .page {
@@ -154,7 +154,7 @@ body {
   max-height: 100%;
   object-fit: contain;
   user-select: none;
-  pointer-events: none; /* клик по контейнеру */
+  pointer-events: none;
 }
 
 .round-text-block {
@@ -172,4 +172,29 @@ body {
   display: flex;
   justify-content: space-between;
   margin-top: 4px;
+}
+
+.app-footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+
+  padding: 10px 24px;
+  border-top: 1px solid #d1d5db;
+
+  background: #f9fafb;
+  font-size: 13px;
+  color: #374151; /* более тёмный текст */
+  z-index: 100;
+}
+
+.app-footer a {
+  color: #2563eb; /* заметный синий */
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
 }
