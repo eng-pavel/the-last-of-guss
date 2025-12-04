@@ -122,10 +122,11 @@ export function RoundsListPage() {
         {rounds.map((round) => (
           <div key={round.id} className="round-card">
             <div className="round-row">
-              <div>
+              <div className="round-row-title">
                 • Round ID: <Link to={`/rounds/${round.id}`}>{round.id}</Link>
               </div>
-              <Text>{getStatusLabel(round.status)}</Text>
+
+              <Text className="round-row-status">{getStatusLabel(round.status)}</Text>
             </div>
 
             <div className="round-meta">

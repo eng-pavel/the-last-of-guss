@@ -212,3 +212,52 @@ body {
   text-align: right;
   white-space: nowrap;
 }
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 8px 12px;
+  }
+
+  .app-header-inner {
+    max-width: 100%;
+  }
+
+  .app-content {
+    max-width: 100%;
+    padding: 12px 12px 64px;
+  }
+
+  .page {
+    width: 100%;
+    padding: 12px 12px;
+    border-width: 1px;
+  }
+
+  /* карточки раундов */
+  .round-card {
+    padding: 10px 12px;
+  }
+
+  .round-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .round-row-status {
+    min-width: auto;
+    text-align: left;
+    align-self: flex-start;
+  }
+
+  .goose-area {
+    width: 100%;
+    height: 180px;
+  }
+
+  .stats-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
