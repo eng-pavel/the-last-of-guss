@@ -10,24 +10,21 @@ import gooseImage from '../assets/goose.png';
 
 const { Title, Text } = Typography;
 
-interface RoundState {
-  round: RoundModel;
-  topStats: RoundTopEntry[];
-  myStats: RoundUserStats;
-}
-
 export function RoundPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
 
-  const [data, setData] = useState<RoundState | null>(null);
+  const [round, setRound] = useState<RoundModel | null>(null);
+  const [topStats, setTopStats] = useState<RoundTopEntry[]>([]);
+  const [myStats, setMyStats] = useState<RoundUserStats>({ taps: 0, score: 0 });
+
   const [status, setStatus] = useState<RoundStatus>('cooldown');
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTapping, setIsTapping] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // загрузка деталей раунда
+  // 1) грузим данные раунда
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -40,15 +37,13 @@ export function RoundPage() {
         const response = await getRoundDetails(id);
         if (cancelled) return;
 
-        const now: Date = new Date();
-        const roundStatus: RoundStatus = getRoundStatus(response.round, now);
-        const remain: number = getRemainingSeconds(response.round, roundStatus, now);
+        const now = new Date();
+        const roundStatus = getRoundStatus(response.round, now);
+        const remain = getRemainingSeconds(response.round, roundStatus, now);
 
-        setData({
-          round: response.round,
-          topStats: response.topStats,
-          myStats: response.myStats,
-        });
+        setRound(response.round);
+        setTopStats(response.topStats);
+        setMyStats(response.myStats);
         setStatus(roundStatus);
         setSecondsLeft(remain);
       } catch {
@@ -69,14 +64,14 @@ export function RoundPage() {
     };
   }, [id]);
 
-  // таймер, обновляется раз в секунду
+  // 2) таймер завязан только на параметрах раунда, а не на моих тапах
   useEffect(() => {
-    if (!data) return;
+    if (!round) return;
 
-    const intervalId: number = window.setInterval(() => {
-      const now: Date = new Date();
-      const newStatus: RoundStatus = getRoundStatus(data.round, now);
-      const remain: number = getRemainingSeconds(data.round, newStatus, now);
+    const intervalId = window.setInterval(() => {
+      const now = new Date();
+      const newStatus = getRoundStatus(round, now);
+      const remain = getRemainingSeconds(round, newStatus, now);
 
       setStatus(newStatus);
       setSecondsLeft(remain);
@@ -85,21 +80,18 @@ export function RoundPage() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [data]);
+  }, [round?.id, round?.startTime, round?.endTime]);
 
   const handleTap = async () => {
-    if (!id || !data) return;
-    if (status !== 'active') return;
+    if (!id || !round) return;
+    if (status !== 'active' || isTapping) return;
 
     try {
       setIsTapping(true);
       const stats = await tapRound(id);
-      setData({
-        ...data,
-        myStats: stats,
-      });
+      setMyStats(stats); // меняем только свою статистику, таймер не трогаем
     } catch {
-      // можно добавить отображение ошибки, но пока тихо игнорируем
+      // можно добавить отображение ошибки
     } finally {
       setIsTapping(false);
     }
@@ -119,7 +111,7 @@ export function RoundPage() {
   }, [status]);
 
   const statusTextBlock = useMemo(() => {
-    if (!data) return null;
+    if (!round) return null;
 
     if (status === 'active') {
       return (
@@ -128,7 +120,7 @@ export function RoundPage() {
           <br />
           <Text>До конца осталось: {formatSeconds(secondsLeft)}</Text>
           <br />
-          <Text>Мои очки — {data.myStats.score}</Text>
+          <Text>Мои очки — {myStats.score}</Text>
         </>
       );
     }
@@ -143,12 +135,11 @@ export function RoundPage() {
       );
     }
 
-    // finished
-    const winner: RoundTopEntry | undefined = data.topStats[0];
+    const winner = topStats[0];
 
     return (
       <>
-        <Text>Всего очков в раунде — {data.round.totalScore}</Text>
+        <Text>Всего очков в раунде — {round.totalScore}</Text>
         <br />
         {winner && (
           <Text>
@@ -156,10 +147,10 @@ export function RoundPage() {
           </Text>
         )}
         <br />
-        <Text>Мои очки — {data.myStats.score}</Text>
+        <Text>Мои очки — {myStats.score}</Text>
       </>
     );
-  }, [data, secondsLeft, status]);
+  }, [round, status, secondsLeft, myStats, topStats]);
 
   return (
     <section className="page">
@@ -182,7 +173,7 @@ export function RoundPage() {
         </div>
       )}
 
-      {data && !isLoading && !error && (
+      {round && !isLoading && !error && (
         <>
           <div className="page-section" style={{ textAlign: 'center' }}>
             <div
@@ -199,27 +190,23 @@ export function RoundPage() {
               <Text style={{ display: 'block', marginTop: 8 }}>Гусь отдыхает</Text>
             )}
 
-            {status === 'active' ? (
-              <Text style={{ display: 'block', marginTop: 8 }}>Тапай по гусю!</Text>
-            ) : (
-              <Text style={{ display: 'block', marginTop: 8 }}>Гусь отдыхает</Text>
-            )}
-
             {status === 'active' && (
-              <Button type="primary" onClick={handleTap} loading={isTapping}>
-                Тапнуть
-              </Button>
+              <div style={{ marginTop: 12 }}>
+                <Button type="primary" onClick={handleTap} loading={isTapping}>
+                  Тапнуть
+                </Button>
+              </div>
             )}
           </div>
 
           <div className="page-section round-text-block">{statusTextBlock}</div>
 
-          {data.topStats.length > 0 && (
+          {topStats.length > 0 && (
             <div className="page-section stats-block">
               <Title level={5} style={{ margin: 0, marginBottom: 8 }}>
                 Топ раунда
               </Title>
-              {data.topStats.map((entry) => (
+              {topStats.map((entry) => (
                 <div key={entry.user.username} className="stats-row">
                   <span>{entry.user.username}</span>
                   <span>{entry.score}</span>
