@@ -54,7 +54,7 @@ body {
 }
 
 .page {
-  width: 420px;
+  width: 554px;
   border: 1px dashed #888;
   padding: 16px 24px;
 }
@@ -99,11 +99,6 @@ body {
   border: 1px dashed #666;
   padding: 12px 16px;
   margin-bottom: 16px;
-}
-
-.round-row {
-  display: flex;
-  justify-content: space-between;
 }
 
 .round-meta {
@@ -197,4 +192,23 @@ body {
 
 .app-footer a:hover {
   text-decoration: underline;
+}
+
+.round-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.round-row-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.round-row-status {
+  flex: 0 0 auto;
+  min-width: 110px;
+  text-align: right;
+  white-space: nowrap;
 }
