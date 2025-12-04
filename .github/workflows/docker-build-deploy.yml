@@ -2,7 +2,7 @@ name: Build & Deploy The Last of Guss
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build-and-deploy:
