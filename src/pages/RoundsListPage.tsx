@@ -52,7 +52,7 @@ export function RoundsListPage() {
       }
     };
 
-    loadRounds();
+    void loadRounds();
 
     return () => {
       cancelled = true;
@@ -106,7 +106,7 @@ export function RoundsListPage() {
 
       {error && (
         <div className="page-section">
-          <Alert type="error" message={error} showIcon />
+          <Alert type="error" title={error} showIcon />
         </div>
       )}
 

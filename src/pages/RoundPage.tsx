@@ -57,7 +57,7 @@ export function RoundPage() {
       }
     };
 
-    load();
+    void load();
 
     return () => {
       cancelled = true;
@@ -169,7 +169,7 @@ export function RoundPage() {
 
       {error && (
         <div className="page-section">
-          <Alert type="error" message={error} showIcon />
+          <Alert type="error" title={error} showIcon />
         </div>
       )}
 
