@@ -52,3 +52,18 @@ body {
 .page-section {
   margin-top: 16px;
 }
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.field-label .ant-input,
+.field-label .ant-input-password {
+  margin-top: 4px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+}

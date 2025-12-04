@@ -1,13 +1,43 @@
-import { Form, Input, Button, Typography } from 'antd';
+import { type FormEvent, useState } from 'react';
+import { Input, Button, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const { Title, Text } = Typography;
 
 export function LoginPage() {
-  const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { login, isLoading, error } = useAuth();
 
-  const handleSubmit = (values: { username: string; password: string }) => {
-    // здесь позже добавим реальный запрос /api/v1/auth/login
-    console.log('login submit', values);
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [touched, setTouched] = useState<boolean>(false);
+
+  const trimmedUsername = username.trim();
+  const trimmedPassword = password.trim();
+
+  const usernameError =
+    touched && (trimmedUsername.length < 3 || trimmedUsername.length > 32)
+      ? 'Имя пользователя от 3 до 32 символов'
+      : '';
+
+  const passwordError =
+    touched && (trimmedPassword.length < 3 || trimmedPassword.length > 64)
+      ? 'Пароль от 3 до 64 символов'
+      : '';
+
+  const hasClientError = Boolean(usernameError || passwordError);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setTouched(true);
+
+    if (hasClientError) return;
+
+    const ok = await login({ username: trimmedUsername, password: trimmedPassword });
+    if (ok) {
+      navigate('/rounds');
+    }
   };
 
   return (
@@ -18,40 +48,49 @@ export function LoginPage() {
         </Title>
       </header>
 
-      <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
-        <Form.Item
-          label="Имя пользователя:"
-          name="username"
-          rules={[
-            { required: true, message: 'Введите имя пользователя' },
-            { min: 3, max: 32 },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+      <form onSubmit={handleSubmit} noValidate>
+        <div className="page-section">
+          <label className="field-label">
+            Имя пользователя:
+            <Input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+            />
+          </label>
+          {usernameError && (
+            <Text type="danger" style={{ display: 'block', marginTop: 4 }}>
+              {usernameError}
+            </Text>
+          )}
+        </div>
 
-        <Form.Item
-          label="Пароль:"
-          name="password"
-          rules={[
-            { required: true, message: 'Введите пароль' },
-            { min: 3, max: 64 },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
+        <div className="page-section">
+          <label className="field-label">
+            Пароль:
+            <Input.Password
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+          {passwordError && (
+            <Text type="danger" style={{ display: 'block', marginTop: 4 }}>
+              {passwordError}
+            </Text>
+          )}
+        </div>
 
-        <Form.Item style={{ marginTop: 24 }}>
-          <Button type="primary" htmlType="submit" block>
+        <div className="page-section">
+          <Button type="primary" htmlType="submit" block loading={isLoading}>
             Войти
           </Button>
-        </Form.Item>
+        </div>
 
-        {/* место под текст ошибки под кнопкой */}
-        <Text type="danger" style={{ display: 'block', minHeight: 20 }}>
-          {/* позже сюда подставим текст ошибки с бэкенда */}
+        <Text type="danger" style={{ display: 'block', minHeight: 20, marginTop: 8 }}>
+          {error}
         </Text>
-      </Form>
+      </form>
     </section>
   );
 }
